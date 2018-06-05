@@ -45,7 +45,7 @@ public final class Codename {
 
     private static final Random generator = new Random();
 
-    private CodenameGenerator() {}
+    private Codename() {}
 
     /** Generate a random Android agent codename */
     public static String generate() {

@@ -46,9 +46,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MainActivity extends AppCompatActivity{
 
-    private static final Strategy STRATEGY = Strategy.P2P_STAR;
+    private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
     private ConnectionsClient client;
     private String opponentName,opponentId;
+    private final String codeName = Codename.generate();
+    TextView cname,connected;
+    Button con,dis;
 
     private static final String[] REQUIRED_PERMISSIONS =
             new String[] {
@@ -90,9 +93,10 @@ public class MainActivity extends AppCompatActivity{
                         Toast.makeText(getApplicationContext(), "Connection Successful", Toast.LENGTH_SHORT).show();
 
                         client.stopDiscovery();
-                        client.stopAdvertising();
 
                         opponentId = endpointId;
+                        connected.setText(opponentName);
+
                     } else {
                         Toast.makeText(getApplicationContext(), "Connection Failed", Toast.LENGTH_SHORT).show();
                     }
@@ -109,7 +113,7 @@ public class MainActivity extends AppCompatActivity{
                 @Override
                 public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
                     Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();;
-                    client.requestConnection("Master", endpointId, connectionLifecycleCallback);
+                    client.requestConnection(codeName, endpointId, connectionLifecycleCallback);
                 }
 
                 @Override
@@ -121,6 +125,12 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        cname=findViewById(R.id.cname);
+        connected=findViewById(R.id.connected);
+        con=findViewById(R.id.btn_con);
+        dis=findViewById(R.id.btn_dis);
+        dis.setEnabled(false);
+        cname.setText(codeName);
         client = Nearby.getConnectionsClient(this);
 
     }
@@ -129,11 +139,17 @@ public class MainActivity extends AppCompatActivity{
         startAdvertising();
         startDiscovery();
         v.setEnabled(false);
+        dis.setEnabled(true);
+    }
+
+    void onDisconnect(View v){
+        v.setEnabled(false);
+        con.setEnabled(true);
     }
 
     private void startAdvertising() {
         // Note: Advertising may fail. To keep this demo simple, we don't handle failures.
-        client.startAdvertising("Master",getResources().getString(R.string.service_id), connectionLifecycleCallback, new AdvertisingOptions(STRATEGY));
+        client.startAdvertising(codeName,getResources().getString(R.string.service_id), connectionLifecycleCallback, new AdvertisingOptions(STRATEGY));
     }
 
     private void startDiscovery() {
