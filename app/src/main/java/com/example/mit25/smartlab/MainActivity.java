@@ -2,6 +2,7 @@ package com.example.mit25.smartlab;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.support.annotation.CallSuper;
@@ -62,13 +63,7 @@ public class MainActivity extends AppCompatActivity{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_NETWORK_STATE
             };
-equals("")){
-            client.sendPayload(opponentId,Payload.fromBytes(msg.getBytes(UTF_8)));
-            Toast.makeText(this, "Msg sent to "+opponentName, Toast.LENGTH_LONG).show();
-        }
-        if(!opponentId1.equals("")){
-            client.sendPayload(opponentId1,Payload.fromBytes(msg.getBytes(UTF_8)));
-            Toast.makeText(this, "
+
     private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 1;
 
     private final PayloadCallback payloadCallback =
@@ -160,7 +155,6 @@ equals("")){
         dis.setEnabled(false);
         cname.setText(codeName);
         client = Nearby.getConnectionsClient(this);
-
     }
 
     void onConnect(View v){
@@ -177,6 +171,11 @@ equals("")){
             client.disconnectFromEndpoint(opponentId);
         if(!opponentId1.equals(""))
             client.disconnectFromEndpoint(opponentId1);
+    }
+
+    void devlist(View v){
+        Intent i= new Intent(getApplicationContext(), Devicelist.class);
+        startActivity(i);
     }
 
     private void startAdvertising() {
