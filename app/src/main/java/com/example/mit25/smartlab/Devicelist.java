@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Devicelist extends AppCompatActivity {
 
-    List<Device> list =  new ArrayList<>();
+    ArrayList<Device> list;
     RecyclerView recycle;
     RecyclerAdapter recyclerAdapter;
 
@@ -21,13 +21,9 @@ public class Devicelist extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_devicelist);
 
+        list = (ArrayList<Device>) getIntent().getSerializableExtra("List");
+
         recycle = (RecyclerView) findViewById(R.id.recyclerview);
-        for(int i=0;i<5;i++){
-            Device d=new Device(Integer.toString(i),Integer.toString(i));
-            Log.d("name:",d.getName());
-            Log.d("ID:",d.getID());
-            list.add(d);
-        }
         recyclerAdapter = new RecyclerAdapter(list,this);
         RecyclerView.LayoutManager recyce = new GridLayoutManager(this,1);
         recycle.setLayoutManager(recyce);

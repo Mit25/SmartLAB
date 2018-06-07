@@ -4,7 +4,7 @@ package com.example.mit25.smartlab;
  * Created by mit25 on 6/6/18.
  */
 
-public class Device {
+public class Device implements java.io.Serializable {
     public String ID,name;
 
     public Device(String ID, String name) {

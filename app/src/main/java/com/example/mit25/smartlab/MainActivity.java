@@ -41,6 +41,7 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -49,10 +50,11 @@ public class MainActivity extends AppCompatActivity{
 
     private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
     private ConnectionsClient client;
-    private String opponentName="",opponentId="",opponentName1="",opponentId1="";
     private final String codeName = Codename.generate();
-    TextView cname,connected,connected2;
+    TextView cname;
     Button con,dis;
+    HashMap<String,String> map=new HashMap<>();
+    ArrayList<Device> list=new ArrayList<>();
 
     private static final String[] REQUIRED_PERMISSIONS =
             new String[] {
@@ -71,7 +73,14 @@ public class MainActivity extends AppCompatActivity{
                 @Override
                 public void onPayloadReceived(String endpointId, Payload payload) {
                     String msg=new String(payload.asBytes(),UTF_8);
-                    Toast.makeText(getApplicationContext(), "Msg received: "+msg, Toast.LENGTH_SHORT).show();
+                    String opponentName="";
+                    for(int i=0;i<list.size();i++){
+                        if(list.get(i).getID().equals(endpointId)){
+                            opponentName=list.get(i).getName();
+                            break;
+                        }
+                    }
+                    Toast.makeText(getApplicationContext(), "Msg received: "+msg+"\nfrom: "+opponentName, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -86,47 +95,33 @@ public class MainActivity extends AppCompatActivity{
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
                     Toast.makeText(getApplicationContext(), "Accepting Connection", Toast.LENGTH_SHORT).show();
                     client.acceptConnection(endpointId, payloadCallback);
-                    if(opponentName.equals(""))
-                        opponentName = connectionInfo.getEndpointName();
-                    else
-                        opponentName1 = connectionInfo.getEndpointName();
+                    map.put(endpointId,connectionInfo.getEndpointName());
                 }
 
                 @Override
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
                     if (result.getStatus().isSuccess()) {
                         Toast.makeText(getApplicationContext(), "Connection Successful", Toast.LENGTH_SHORT).show();
-                        boolean flag=true;
-                        if(opponentId.equals(""))
-                            opponentId = endpointId;
-                        else {
-                            opponentId1 = endpointId;
-                            flag=false;
-                        }
-                        if(connected.getText().toString().equals("Not Connected")) {
-                            if(flag)
-                                connected.setText(opponentName);
-                            else
-                                connected.setText(opponentName1);
-                        }
-                        else{
-                            if(flag)
-                                connected2.setText(opponentName);
-                            else
-                                connected2.setText(opponentName1);
-                        }
-
-                    } else {
+                        Device d=new Device(endpointId,map.get(endpointId));
+                        map.remove(endpointId);
+                        list.add(d);
+                    }
+                    else {
                         Toast.makeText(getApplicationContext(), "Connection Failed", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onDisconnected(String endpointId) {
-                    if(endpointId.equals(opponentId))
-                        Toast.makeText(getApplicationContext(), "Disconnected "+opponentName, Toast.LENGTH_SHORT).show();
-                    if(endpointId.equals(opponentId1))
-                        Toast.makeText(getApplicationContext(), "Disconnected "+opponentName, Toast.LENGTH_SHORT).show();
+                    String opponentName="";
+                    for(int i=0;i<list.size();i++){
+                        if(list.get(i).getID().equals(endpointId)){
+                            opponentName=list.get(i).getName();
+                            list.remove(i);
+                            break;
+                        }
+                    }
+                    Toast.makeText(getApplicationContext(), "Disconnected "+opponentName, Toast.LENGTH_SHORT).show();
                 }
             };
 
@@ -139,7 +134,17 @@ public class MainActivity extends AppCompatActivity{
                 }
 
                 @Override
-                public void onEndpointLost(String endpointId) {}
+                public void onEndpointLost(String endpointId) {
+                    String opponentName="";
+                    for(int i=0;i<list.size();i++){
+                        if(list.get(i).getID().equals(endpointId)){
+                            opponentName=list.get(i).getName();
+                            list.remove(i);
+                            break;
+                        }
+                    }
+                    Toast.makeText(getApplicationContext(), "Endpoint Lost "+opponentName, Toast.LENGTH_SHORT).show();
+                }
             };
 
     @Override
@@ -148,8 +153,6 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
         cname=findViewById(R.id.cname);
-        connected=findViewById(R.id.connected);
-        connected2=findViewById(R.id.connected2);
         con=findViewById(R.id.btn_con);
         dis=findViewById(R.id.btn_dis);
         dis.setEnabled(false);
@@ -167,14 +170,15 @@ public class MainActivity extends AppCompatActivity{
     void onDisconnect(View v){
         v.setEnabled(false);
         con.setEnabled(true);
-        if(!opponentId.equals(""))
-            client.disconnectFromEndpoint(opponentId);
-        if(!opponentId1.equals(""))
-            client.disconnectFromEndpoint(opponentId1);
+        client.stopAdvertising();
+        client.stopDiscovery();
+        list.clear();
+        client.stopAllEndpoints();
     }
 
     void devlist(View v){
         Intent i= new Intent(getApplicationContext(), Devicelist.class);
+        i.putExtra("List", list);
         startActivity(i);
     }
 
@@ -188,7 +192,7 @@ public class MainActivity extends AppCompatActivity{
         client.startDiscovery(getResources().getString(R.string.service_id), endpointDiscoveryCallback, new DiscoveryOptions(STRATEGY));
     }
 
-    public void sendMsg(View v){
+    /*public void sendMsg(View v){
         String msg="Message from "+codeName;
         if(!opponentId.equals("")){
             client.sendPayload(opponentId,Payload.fromBytes(msg.getBytes(UTF_8)));
@@ -199,7 +203,7 @@ public class MainActivity extends AppCompatActivity{
             Toast.makeText(this, "Msg sent to "+opponentName1, Toast.LENGTH_LONG).show();
         }
 
-    }
+    }*/
 
     protected void onStart() {
         super.onStart();
@@ -211,7 +215,7 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onStop() {
-        client.stopAllEndpoints();
+        //client.stopAllEndpoints();
         super.onStop();
     }
 
