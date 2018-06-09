@@ -7,6 +7,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.google.android.gms.nearby.connection.ConnectionsClient;
+
 import java.util.ArrayList;
 import java.util.List;
 

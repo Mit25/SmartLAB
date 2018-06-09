@@ -2,6 +2,7 @@ package com.example.mit25.smartlab;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.nearby.connection.ConnectionsClient;
+
+import java.io.Serializable;
 import java.util.List;
 /**
  * Created by mit25 on 6/6/18.
@@ -68,7 +73,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyHold
 
         @Override
         public void onClick(View view) {
-            int positon = getAdapterPosition();
+            int position = getAdapterPosition();
+            Device d=l.get(position);
+            Intent i=new Intent(this.ctx,MainActivity.class);
+            i.putExtra("Flag","true");
+            i.putExtra("Name",d.getName());
+            i.putExtra("ID",d.getID());
+            this.ctx.startActivity(i);
         }
     }
 

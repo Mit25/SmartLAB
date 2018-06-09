@@ -2,16 +2,20 @@ package com.example.mit25.smartlab;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -40,6 +44,7 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -158,16 +163,48 @@ public class MainActivity extends AppCompatActivity{
         dis.setEnabled(false);
         cname.setText(codeName);
         client = Nearby.getConnectionsClient(this);
+        String flag=getIntent().getStringExtra("Flag");
+        if(flag!=null && flag.equals("true")){
+            final String opponentId=getIntent().getStringExtra("ID");
+            LayoutInflater li=LayoutInflater.from(this);
+            View pv=li.inflate(R.layout.prompts,null);
+
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+            builder1.setView(pv);
+
+            final EditText et=pv.findViewById(R.id.msg);
+
+            builder1.setCancelable(true);
+            builder1.setPositiveButton(
+                    "Send",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                           String msg1=et.getText().toString();
+                            client.sendPayload(opponentId,Payload.fromBytes(msg1.getBytes(UTF_8)));
+                        }
+                    });
+
+            builder1.setNegativeButton(
+                    "Cancel",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                        }
+                    });
+
+            AlertDialog alert11 = builder1.create();
+            alert11.show();
+        }
     }
 
-    void onConnect(View v){
+    public void onConnect(View v){
         startAdvertising();
         startDiscovery();
         v.setEnabled(false);
         dis.setEnabled(true);
     }
 
-    void onDisconnect(View v){
+    public void onDisconnect(View v){
         v.setEnabled(false);
         con.setEnabled(true);
         client.stopAdvertising();
@@ -176,7 +213,7 @@ public class MainActivity extends AppCompatActivity{
         client.stopAllEndpoints();
     }
 
-    void devlist(View v){
+    public void devlist(View v){
         Intent i= new Intent(getApplicationContext(), Devicelist.class);
         i.putExtra("List", list);
         startActivity(i);
@@ -208,9 +245,9 @@ public class MainActivity extends AppCompatActivity{
     protected void onStart() {
         super.onStart();
 
-        if (!hasPermissions(this, REQUIRED_PERMISSIONS)) {
+        /*if (!hasPermissions(this, REQUIRED_PERMISSIONS)) {
             requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_REQUIRED_PERMISSIONS);
-        }
+        }*/
     }
 
     @Override
@@ -219,7 +256,7 @@ public class MainActivity extends AppCompatActivity{
         super.onStop();
     }
 
-    /** Returns true if the app was granted all the permissions. Otherwise, returns false. */
+    //Returns true if the app was granted all the permissions. Otherwise, returns false.
     private static boolean hasPermissions(Context context, String... permissions) {
         for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(context, permission)
@@ -230,7 +267,7 @@ public class MainActivity extends AppCompatActivity{
         return true;
     }
 
-    /** Handles user acceptance (or denial) of our permission request. */
+    // Handles user acceptance (or denial) of our permission request.
     @CallSuper
     @Override
     public void onRequestPermissionsResult(
