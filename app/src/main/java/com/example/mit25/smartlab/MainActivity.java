@@ -53,7 +53,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MainActivity extends AppCompatActivity{
 
-    private static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
+    private static final Strategy STRATEGY = Strategy.P2P_STAR;
     private ConnectionsClient client;
     private final String codeName = Codename.generate();
     TextView cname;
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity{
                     "Send",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                           String msg1=et.getText().toString();
+                            String msg1=et.getText().toString();
                             client.sendPayload(opponentId,Payload.fromBytes(msg1.getBytes(UTF_8)));
                         }
                     });
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity{
 
     public void onConnect(View v){
         startAdvertising();
-        startDiscovery();
+        //startDiscovery();
         v.setEnabled(false);
         dis.setEnabled(true);
     }
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity{
         v.setEnabled(false);
         con.setEnabled(true);
         client.stopAdvertising();
-        client.stopDiscovery();
+        //client.stopDiscovery();
         list.clear();
         client.stopAllEndpoints();
     }
@@ -254,9 +254,9 @@ public class MainActivity extends AppCompatActivity{
     protected void onStart() {
         super.onStart();
 
-        /*if (!hasPermissions(this, REQUIRED_PERMISSIONS)) {
+        if (!hasPermissions(this, REQUIRED_PERMISSIONS)) {
             requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_REQUIRED_PERMISSIONS);
-        }*/
+        }
     }
 
     @Override
@@ -297,3 +297,4 @@ public class MainActivity extends AppCompatActivity{
         recreate();
     }
 }
+
