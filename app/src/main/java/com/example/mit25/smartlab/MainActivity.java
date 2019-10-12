@@ -98,21 +98,29 @@ public class MainActivity extends AppCompatActivity{
             new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
-                    Toast.makeText(getApplicationContext(), "Accepting Connection", Toast.LENGTH_SHORT).show();
+                    String opponentName=connectionInfo.getEndpointName();
+                    Toast.makeText(getApplicationContext(), "Accepting Connection "+opponentName, Toast.LENGTH_SHORT).show();
                     client.acceptConnection(endpointId, payloadCallback);
-                    map.put(endpointId,connectionInfo.getEndpointName());
+                    map.put(endpointId,opponentName);
                 }
 
                 @Override
                 public void onConnectionResult(String endpointId, ConnectionResolution result) {
+                    String opponentName="";
+                    for(int i=0;i<list.size();i++){
+                        if(list.get(i).getID().equals(endpointId)){
+                            opponentName=list.get(i).getName();
+                            break;
+                        }
+                    }
                     if (result.getStatus().isSuccess()) {
-                        Toast.makeText(getApplicationContext(), "Connection Successful", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Connection Successful "+opponentName, Toast.LENGTH_SHORT).show();
                         Device d=new Device(endpointId,map.get(endpointId));
                         map.remove(endpointId);
                         list.add(d);
                     }
                     else {
-                        Toast.makeText(getApplicationContext(), "Connection Failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Connection Failed "+opponentName, Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -134,7 +142,8 @@ public class MainActivity extends AppCompatActivity{
             new EndpointDiscoveryCallback() {
                 @Override
                 public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
-                    Toast.makeText(getApplicationContext(), "Connecting", Toast.LENGTH_SHORT).show();;
+                    String opponentName=info.getEndpointName();
+                    Toast.makeText(getApplicationContext(), "Connecting "+opponentName, Toast.LENGTH_SHORT).show();;
                     client.requestConnection(codeName, endpointId, connectionLifecycleCallback);
                 }
 
