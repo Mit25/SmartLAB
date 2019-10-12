@@ -207,8 +207,8 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void onConnect(View v){
-        startAdvertising();
-        //startDiscovery();
+        //startAdvertising();
+        startDiscovery();
         v.setEnabled(false);
         dis.setEnabled(true);
     }
@@ -216,8 +216,8 @@ public class MainActivity extends AppCompatActivity{
     public void onDisconnect(View v){
         v.setEnabled(false);
         con.setEnabled(true);
-        client.stopAdvertising();
-        //client.stopDiscovery();
+        //client.stopAdvertising();
+        client.stopDiscovery();
         list.clear();
         client.stopAllEndpoints();
     }
@@ -297,4 +297,3 @@ public class MainActivity extends AppCompatActivity{
         recreate();
     }
 }
-
